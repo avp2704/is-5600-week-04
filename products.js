@@ -29,12 +29,24 @@ async function list (options = {}) {
     return null;
 }
 async function deleteProduct(id) {
-    console.log(`Product with ID ${id} deleted`);
-    return { success: true };  // Simulate successful deletion
+  const products = JSON.parse(await fs.readFile(productsFile));
+  const productIndex = products.findIndex(product => product.id === id);
+
+  if (productIndex === -1) return false; // Product not found
+
+  products.splice(productIndex, 1); // Remove product from array
+  await fs.writeFile(productsFile, JSON.stringify(products, null, 2));
+  return true;
 }
 async function updateProduct(id, newProductData) {
-    console.log(`Product with ID ${id} updated with data:`, newProductData);
-    return { success: true };  // Simulate successful update
+  const products = JSON.parse(await fs.readFile(productsFile));
+  const productIndex = products.findIndex(product => product.id === id);
+
+  if (productIndex === -1) return null; // Product not found
+
+  products[productIndex] = { ...products[productIndex], ...newProductData };
+  await fs.writeFile(productsFile, JSON.stringify(products, null, 2));
+  return products[productIndex];
 }
 module.exports = {  
     list,
